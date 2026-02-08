@@ -74,7 +74,7 @@ class UserProfile(BaseModel):
     goal: str
     bmi: float
     daily_calorie_target: int
-    daily_water_target: int  # in ml
+    daily_water_target: int = 2000  # in ml, default 2L
 
 class UpdateProfile(BaseModel):
     name: Optional[str] = None
