@@ -190,6 +190,7 @@ async def register(user: UserRegister):
     # Calculate BMI and calorie target
     bmi = calculate_bmi(user.weight, user.height)
     daily_calories = calculate_daily_calories(user.age, user.gender, user.weight, user.height, user.goal)
+    daily_water = calculate_daily_water(user.weight)
     
     # Create user document
     user_doc = {
@@ -203,6 +204,7 @@ async def register(user: UserRegister):
         "goal": user.goal,
         "bmi": bmi,
         "daily_calorie_target": daily_calories,
+        "daily_water_target": daily_water,
         "created_at": datetime.utcnow()
     }
     
