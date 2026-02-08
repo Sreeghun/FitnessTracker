@@ -237,7 +237,8 @@ async def get_profile(current_user = Depends(get_current_user)):
         weight=current_user["weight"],
         goal=current_user["goal"],
         bmi=current_user["bmi"],
-        daily_calorie_target=current_user["daily_calorie_target"]
+        daily_calorie_target=current_user["daily_calorie_target"],
+        daily_water_target=current_user.get("daily_water_target", 2000)
     )
 
 @api_router.put("/profile")
