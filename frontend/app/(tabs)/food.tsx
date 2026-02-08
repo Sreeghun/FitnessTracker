@@ -157,20 +157,37 @@ export default function Food() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
+      console.log('AI Response:', response.data);
+
       if (response.data.items && response.data.items.length > 0) {
-        const newEntries = [...todayEntries, ...response.data.items];
+        // Format items correctly for food log
+        const formattedItems = response.data.items.map((item: any) => ({
+          food_name: item.name,
+          grams: item.grams,
+          kcal: item.kcal,
+          proteins: item.proteins,
+          carbs: item.carbs,
+          fats: item.fats,
+        }));
+
+        const newEntries = [...todayEntries, ...formattedItems];
+        
         await axios.post(
           `${BACKEND_URL}/api/food-logs`,
           { date: selectedDate, entries: newEntries },
           { headers: { Authorization: `Bearer ${token}` } }
         );
+        
         setTodayEntries(newEntries);
-        Alert.alert('Success', `Found ${response.data.items.length} food items!`);
+        Alert.alert('Success', `Detected ${response.data.items.length} food item(s)!\nTotal: ${response.data.total_kcal} kcal`);
+        loadTodayLog();
       } else {
-        Alert.alert('No food detected', 'Please try with a clearer image');
+        const errorMsg = response.data.error || 'No food detected';
+        Alert.alert('No Food Detected', `${errorMsg}\n\nPlease try with a clearer image of food.`);
       }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to analyze food image');
+    } catch (error: any) {
+      console.error('AI Analysis Error:', error.response?.data || error);
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to analyze food image');
     } finally {
       setAiAnalyzing(false);
     }
