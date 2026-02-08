@@ -703,9 +703,25 @@ async def get_activity_history(days: int = 7, current_user = Depends(get_current
         "summary": list(daily_summary.values())
     }
 
+# ==================== Dashboard Endpoint ====================
 
+@api_router.get("/dashboard/{date}")
+async def get_dashboard_data(date: str, current_user = Depends(get_current_user)):
+    # Get all logs for the date
+    food_log = await db.food_logs.find_one({"user_id": str(current_user["_id"]), "date": date})
+    water_log = await db.water_logs.find_one({"user_id": str(current_user["_id"]), "date": date})
     sleep_log = await db.sleep_logs.find_one({"user_id": str(current_user["_id"]), "date": date})
     mood_log = await db.mood_logs.find_one({"user_id": str(current_user["_id"]), "date": date})
+    
+    # Get activity logs for the date
+    activity_logs = await db.activity_logs.find({
+        "user_id": str(current_user["_id"]),
+        "date": date
+    }).to_list(100)
+    
+    total_steps = sum(log.get("steps", 0) for log in activity_logs)
+    total_calories_burned = sum(log.get("calories_burned", 0) for log in activity_logs)
+    total_activity_time = sum(log.get("duration_minutes", 0) for log in activity_logs)
     
     return {
         "user": {
@@ -722,7 +738,7 @@ async def get_activity_history(days: int = 7, current_user = Depends(get_current
         },
         "water": {
             "total_intake": water_log["total_intake"] if water_log else 0,
-            "goal_ml": water_log["goal_ml"] if water_log else 2000
+            "goal_ml": water_log["goal_ml"] if water_log else current_user.get("daily_water_target", 2000)
         },
         "sleep": {
             "hours": sleep_log["hours"] if sleep_log else 0,
@@ -730,6 +746,12 @@ async def get_activity_history(days: int = 7, current_user = Depends(get_current
         },
         "mood": {
             "mood": mood_log["mood"] if mood_log else None
+        },
+        "activity": {
+            "total_steps": total_steps,
+            "total_calories_burned": total_calories_burned,
+            "total_activity_time": total_activity_time,
+            "activity_count": len(activity_logs)
         }
     }
 
