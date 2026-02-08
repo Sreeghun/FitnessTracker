@@ -389,12 +389,13 @@ async def add_water_intake(log: WaterLogCreate, current_user = Depends(get_curre
             }
         )
     else:
-        # Create new log
+        # Create new log with user's personalized water target
+        user_water_goal = current_user.get("daily_water_target", 2000)
         log_doc = {
             "user_id": str(current_user["_id"]),
             "date": log.date,
             "total_intake": log.amount_ml,
-            "goal_ml": 2000,  # Default 2L goal
+            "goal_ml": user_water_goal,
             "entries": [{"time": datetime.utcnow().isoformat(), "amount_ml": log.amount_ml}]
         }
         await db.water_logs.insert_one(log_doc)
@@ -408,8 +409,9 @@ async def get_water_log(date: str, current_user = Depends(get_current_user)):
         "date": date
     })
     
+    user_water_goal = current_user.get("daily_water_target", 2000)
     if not log:
-        return {"date": date, "total_intake": 0, "goal_ml": 2000, "entries": []}
+        return {"date": date, "total_intake": 0, "goal_ml": user_water_goal, "entries": []}
     
     return {
         "date": log["date"],
