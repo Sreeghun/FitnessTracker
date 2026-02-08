@@ -537,8 +537,8 @@ async def get_dashboard_data(date: str, current_user = Depends(get_current_user)
 async def analyze_food_image(data: FoodImageAnalysis, current_user = Depends(get_current_user)):
     """Analyze food image using AI and estimate nutritional content"""
     try:
-        # Initialize LLM client
-        llm_client = LlmChat(api_key=EMERGENT_LLM_KEY, provider="openai", model="gpt-4o")
+        # Initialize LLM client (emergentintegrations handles provider automatically)
+        llm_client = LlmChat(api_key=EMERGENT_LLM_KEY, model="gpt-4o")
         
         # Create the prompt
         prompt = """Analyze this food image and provide a detailed breakdown of the food items visible. 
