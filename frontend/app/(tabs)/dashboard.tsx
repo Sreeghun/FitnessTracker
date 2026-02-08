@@ -20,18 +20,24 @@ export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [selectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
   useEffect(() => {
-    loadDashboardData();
-  }, [selectedDate]);
+    if (token) {
+      loadDashboardData();
+    }
+  }, [selectedDate, token]);
 
   const loadDashboardData = async () => {
+    if (!token) return;
+    
     try {
+      console.log('Loading dashboard for date:', selectedDate);
       const response = await axios.get(
         `${BACKEND_URL}/api/dashboard/${selectedDate}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      console.log('Dashboard data received:', response.data);
       setDashboardData(response.data);
     } catch (error) {
       console.error('Error loading dashboard:', error);
