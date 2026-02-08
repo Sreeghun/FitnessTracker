@@ -525,11 +525,6 @@ async def get_mood_log(date: str, current_user = Depends(get_current_user)):
 
 # ==================== Dashboard Endpoint ====================
 
-@api_router.get("/dashboard/{date}")
-async def get_dashboard_data(date: str, current_user = Depends(get_current_user)):
-    # Get all logs for the date
-    food_log = await db.food_logs.find_one({"user_id": str(current_user["_id"]), "date": date})
-    water_log = await db.water_logs.find_one({"user_id": str(current_user["_id"]), "date": date})
 
 # ==================== AI Food Recognition Endpoint ====================
 
