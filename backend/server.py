@@ -590,15 +590,29 @@ Respond ONLY in JSON format like this:
                 response_text = response_text.split("```")[1].split("```")[0].strip()
             
             analysis = json.loads(response_text)
+            
+            # Ensure items is a list
+            if "items" not in analysis:
+                analysis["items"] = []
+            
             return analysis
-        except json.JSONDecodeError:
-            # If parsing fails, return a structured error
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON parsing error: {e}, Response: {response[:500]}")
+            # Return a structured response even if parsing fails
             return {
                 "items": [],
                 "total_kcal": 0,
                 "confidence": "low",
                 "error": "Could not parse AI response",
-                "raw_response": response[:500]
+                "raw_response": response[:500] if response else "No response"
+            }
+        except Exception as e:
+            logger.error(f"Unexpected error in response parsing: {e}")
+            return {
+                "items": [],
+                "total_kcal": 0,
+                "confidence": "low",
+                "error": str(e)
             }
             
     except Exception as e:
