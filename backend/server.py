@@ -265,6 +265,9 @@ async def update_profile(profile_update: UpdateProfile, current_user = Depends(g
     if profile_update.height or profile_update.weight:
         update_data["bmi"] = calculate_bmi(weight, height)
     
+    if profile_update.weight:
+        update_data["daily_water_target"] = calculate_daily_water(weight)
+    
     if profile_update.height or profile_update.weight or profile_update.goal or profile_update.age:
         update_data["daily_calorie_target"] = calculate_daily_calories(
             age, current_user["gender"], weight, height, goal
