@@ -1,6 +1,6 @@
 import React from 'react';
 import { Stack } from 'expo-router';
-import { AuthProvider } from '../contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 import { PaperProvider } from 'react-native-paper';
 
 export default function RootLayout() {
