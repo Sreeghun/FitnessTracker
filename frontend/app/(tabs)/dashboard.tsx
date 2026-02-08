@@ -161,6 +161,33 @@ export default function Dashboard() {
         </View>
       </View>
 
+      {/* Activity Card */}
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <View style={styles.cardTitleRow}>
+            <Ionicons name="fitness" size={24} color="#4CAF50" />
+            <Text style={styles.cardTitle}>Activity</Text>
+          </View>
+        </View>
+        
+        <View style={styles.statsRow}>
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>{dashboardData?.activity?.total_steps || 0}</Text>
+            <Text style={styles.statLabel}>Steps</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>{dashboardData?.activity?.total_calories_burned || 0}</Text>
+            <Text style={styles.statLabel}>Cal Burned</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>{dashboardData?.activity?.total_activity_time || 0}</Text>
+            <Text style={styles.statLabel}>Minutes</Text>
+          </View>
+        </View>
+      </View>
+
       {/* Sleep & Mood Card */}
       <View style={styles.row}>
         <View style={[styles.card, styles.smallCard]}>

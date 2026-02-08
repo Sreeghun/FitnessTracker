@@ -9,11 +9,13 @@ import {
   Modal,
   Alert,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { format } from 'date-fns';
+import * as ImagePicker from 'expo-image-picker';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -27,6 +29,7 @@ export default function Food() {
   const [grams, setGrams] = useState('');
   const [todayEntries, setTodayEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [aiAnalyzing, setAiAnalyzing] = useState(false);
 
   useEffect(() => {
     loadFoodDatabase();
@@ -105,6 +108,74 @@ export default function Food() {
     food.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleAIFoodScan = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Camera permission is required');
+      return;
+    }
+
+    Alert.alert(
+      'Scan Food',
+      'Choose method:',
+      [
+        {
+          text: 'Take Photo',
+          onPress: async () => {
+            const result = await ImagePicker.launchCameraAsync({
+              quality: 0.5,
+              base64: true,
+            });
+            if (!result.canceled && result.assets[0].base64) {
+              analyzeFood(result.assets[0].base64);
+            }
+          },
+        },
+        {
+          text: 'Choose from Gallery',
+          onPress: async () => {
+            const result = await ImagePicker.launchImageLibraryAsync({
+              quality: 0.5,
+              base64: true,
+            });
+            if (!result.canceled && result.assets[0].base64) {
+              analyzeFood(result.assets[0].base64);
+            }
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ]
+    );
+  };
+
+  const analyzeFood = async (base64: string) => {
+    setAiAnalyzing(true);
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/analyze-food-image`,
+        { image_base64: base64 },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.items && response.data.items.length > 0) {
+        const newEntries = [...todayEntries, ...response.data.items];
+        await axios.post(
+          `${BACKEND_URL}/api/food-logs`,
+          { date: selectedDate, entries: newEntries },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setTodayEntries(newEntries);
+        Alert.alert('Success', `Found ${response.data.items.length} food items!`);
+      } else {
+        Alert.alert('No food detected', 'Please try with a clearer image');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to analyze food image');
+    } finally {
+      setAiAnalyzing(false);
+    }
+  };
+
   const totalKcal = todayEntries.reduce((sum, entry) => sum + entry.kcal, 0);
 
   return (
@@ -148,12 +219,21 @@ export default function Food() {
         )}
       </View>
 
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => setModalVisible(true)}
-      >
-        <Ionicons name="add" size={32} color="#fff" />
-      </TouchableOpacity>
+      <View style={styles.fabContainer}>
+        <TouchableOpacity style={styles.fabSecondary} onPress={handleAIFoodScan}>
+          <Ionicons name="camera" size={24} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+          <Ionicons name="add" size={32} color="#fff" />
+        </TouchableOpacity>
+      </View>
+
+      {aiAnalyzing && (
+        <View style={styles.aiLoadingOverlay}>
+          <ActivityIndicator size="large" color="#4CAF50" />
+          <Text style={styles.aiLoadingText}>AI analyzing food...</Text>
+        </View>
+      )}
 
       <Modal
         visible={modalVisible}
@@ -373,10 +453,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
-  fab: {
+  fabContainer: {
     position: 'absolute',
     right: 24,
     bottom: 24,
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+  },
+  fab: {
     width: 64,
     height: 64,
     borderRadius: 32,
@@ -388,6 +472,36 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+  },
+  fabSecondary: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#2196F3',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  aiLoadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  aiLoadingText: {
+    color: '#fff',
+    fontSize: 18,
+    marginTop: 16,
+    fontWeight: '600',
   },
   modalContainer: {
     flex: 1,
