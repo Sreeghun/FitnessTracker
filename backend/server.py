@@ -537,8 +537,12 @@ async def get_dashboard_data(date: str, current_user = Depends(get_current_user)
 async def analyze_food_image(data: FoodImageAnalysis, current_user = Depends(get_current_user)):
     """Analyze food image using AI and estimate nutritional content"""
     try:
-        # Initialize LLM client (emergentintegrations handles provider automatically)
-        llm_client = LlmChat(api_key=EMERGENT_LLM_KEY, model="gpt-4o")
+        # Initialize LLM client with emergentintegrations
+        llm_client = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id="food-analysis",
+            system_message="You are a nutrition expert that analyzes food images."
+        ).with_model(provider="openai", model="gpt-4o")
         
         # Create the prompt
         prompt = """Analyze this food image and provide a detailed breakdown of the food items visible. 
@@ -567,17 +571,15 @@ Respond ONLY in JSON format like this:
 }"""
         
         # Create message with image
-        messages = [
-            UserMessage(
-                content=[
-                    {"type": "text", "text": prompt},
-                    ImageContent(image_data=data.image_base64, image_format="auto")
-                ]
-            )
-        ]
+        user_message = UserMessage(
+            content=[
+                {"type": "text", "text": prompt},
+                ImageContent(image_data=data.image_base64, image_format="auto")
+            ]
+        )
         
-        # Get AI response
-        response = llm_client.generate(messages=messages)
+        # Get AI response using send_message
+        response = llm_client.send_message(user_message)
         
         # Parse the response
         import json
