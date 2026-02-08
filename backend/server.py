@@ -530,6 +530,180 @@ async def get_dashboard_data(date: str, current_user = Depends(get_current_user)
     # Get all logs for the date
     food_log = await db.food_logs.find_one({"user_id": str(current_user["_id"]), "date": date})
     water_log = await db.water_logs.find_one({"user_id": str(current_user["_id"]), "date": date})
+
+# ==================== AI Food Recognition Endpoint ====================
+
+@api_router.post("/analyze-food-image")
+async def analyze_food_image(data: FoodImageAnalysis, current_user = Depends(get_current_user)):
+    """Analyze food image using AI and estimate nutritional content"""
+    try:
+        # Initialize LLM client
+        llm_client = LlmChat(api_key=EMERGENT_LLM_KEY, provider="openai", model="gpt-4o")
+        
+        # Create the prompt
+        prompt = """Analyze this food image and provide a detailed breakdown of the food items visible. 
+For each food item, estimate:
+1. Food name
+2. Approximate portion size in grams
+3. Estimated calories (kcal)
+4. Estimated protein (g)
+5. Estimated carbohydrates (g)
+6. Estimated fats (g)
+
+Respond ONLY in JSON format like this:
+{
+  "items": [
+    {
+      "name": "Grilled Chicken Breast",
+      "grams": 150,
+      "kcal": 248,
+      "proteins": 46.5,
+      "carbs": 0,
+      "fats": 5.4
+    }
+  ],
+  "total_kcal": 248,
+  "confidence": "high"
+}"""
+        
+        # Create message with image
+        messages = [
+            UserMessage(
+                content=[
+                    {"type": "text", "text": prompt},
+                    ImageContent(image_data=data.image_base64, image_format="auto")
+                ]
+            )
+        ]
+        
+        # Get AI response
+        response = llm_client.generate(messages=messages)
+        
+        # Parse the response
+        import json
+        try:
+            # Extract JSON from response
+            response_text = response.strip()
+            if "```json" in response_text:
+                response_text = response_text.split("```json")[1].split("```")[0].strip()
+            elif "```" in response_text:
+                response_text = response_text.split("```")[1].split("```")[0].strip()
+            
+            analysis = json.loads(response_text)
+            return analysis
+        except json.JSONDecodeError:
+            # If parsing fails, return a structured error
+            return {
+                "items": [],
+                "total_kcal": 0,
+                "confidence": "low",
+                "error": "Could not parse AI response",
+                "raw_response": response[:500]
+            }
+            
+    except Exception as e:
+        logger.error(f"Error analyzing food image: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to analyze image: {str(e)}")
+
+# ==================== Activity Tracking Endpoints ====================
+
+@api_router.post("/activity-logs")
+async def create_activity_log(log: ActivityLogCreate, current_user = Depends(get_current_user)):
+    """Log a fitness activity"""
+    log_doc = {
+        "user_id": str(current_user["_id"]),
+        "date": log.date,
+        "activity_type": log.activity_type,
+        "duration_minutes": log.duration_minutes,
+        "distance_km": log.distance_km,
+        "calories_burned": log.calories_burned,
+        "steps": log.steps,
+        "heart_rate_avg": log.heart_rate_avg,
+        "notes": log.notes,
+        "created_at": datetime.utcnow()
+    }
+    
+    await db.activity_logs.insert_one(log_doc)
+    return {"message": "Activity logged successfully"}
+
+@api_router.get("/activity-logs/{date}")
+async def get_activity_logs(date: str, current_user = Depends(get_current_user)):
+    """Get all activities for a specific date"""
+    logs = await db.activity_logs.find({
+        "user_id": str(current_user["_id"]),
+        "date": date
+    }).to_list(100)
+    
+    if not logs:
+        return {"date": date, "activities": [], "total_duration": 0, "total_calories": 0, "total_steps": 0}
+    
+    activities = []
+    total_duration = 0
+    total_calories = 0
+    total_steps = 0
+    
+    for log in logs:
+        activities.append({
+            "id": str(log["_id"]),
+            "activity_type": log["activity_type"],
+            "duration_minutes": log["duration_minutes"],
+            "distance_km": log.get("distance_km", 0),
+            "calories_burned": log.get("calories_burned", 0),
+            "steps": log.get("steps", 0),
+            "heart_rate_avg": log.get("heart_rate_avg", 0),
+            "notes": log.get("notes", "")
+        })
+        total_duration += log["duration_minutes"]
+        total_calories += log.get("calories_burned", 0)
+        total_steps += log.get("steps", 0)
+    
+    return {
+        "date": date,
+        "activities": activities,
+        "total_duration": total_duration,
+        "total_calories": total_calories,
+        "total_steps": total_steps
+    }
+
+@api_router.get("/activity-logs")
+async def get_activity_history(days: int = 7, current_user = Depends(get_current_user)):
+    """Get activity history for the past N days"""
+    from datetime import date, timedelta
+    
+    end_date = date.today()
+    start_date = end_date - timedelta(days=days-1)
+    
+    logs = await db.activity_logs.find({
+        "user_id": str(current_user["_id"]),
+        "date": {
+            "$gte": start_date.isoformat(),
+            "$lte": end_date.isoformat()
+        }
+    }).to_list(1000)
+    
+    # Group by date
+    daily_summary = {}
+    for log in logs:
+        log_date = log["date"]
+        if log_date not in daily_summary:
+            daily_summary[log_date] = {
+                "date": log_date,
+                "total_duration": 0,
+                "total_calories": 0,
+                "total_steps": 0,
+                "activity_count": 0
+            }
+        daily_summary[log_date]["total_duration"] += log["duration_minutes"]
+        daily_summary[log_date]["total_calories"] += log.get("calories_burned", 0)
+        daily_summary[log_date]["total_steps"] += log.get("steps", 0)
+        daily_summary[log_date]["activity_count"] += 1
+    
+    return {
+        "days": days,
+        "summary": list(daily_summary.values())
+    }
+
+
     sleep_log = await db.sleep_logs.find_one({"user_id": str(current_user["_id"]), "date": date})
     mood_log = await db.mood_logs.find_one({"user_id": str(current_user["_id"]), "date": date})
     
