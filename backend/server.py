@@ -144,6 +144,12 @@ def calculate_daily_calories(age: int, gender: str, weight: float, height: float
     else:
         return int(tdee)
 
+def calculate_daily_water(weight: float) -> int:
+    """Calculate daily water target based on body weight"""
+    # Recommended: 30-35ml per kg of body weight
+    # Using 33ml as average
+    return int(weight * 33)
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
