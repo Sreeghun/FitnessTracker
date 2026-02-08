@@ -540,8 +540,8 @@ async def analyze_food_image(data: FoodImageAnalysis, current_user = Depends(get
         # Initialize LLM client with emergentintegrations
         llm_client = LlmChat(
             api_key=EMERGENT_LLM_KEY,
-            session_id="food-analysis",
-            system_message="You are a nutrition expert that analyzes food images."
+            session_id=f"food-{current_user['_id']}",
+            system_message="You are a nutrition expert that analyzes food images and provides detailed nutritional information."
         ).with_model(provider="openai", model="gpt-4o")
         
         # Create the prompt
@@ -570,16 +570,14 @@ Respond ONLY in JSON format like this:
   "confidence": "high"
 }"""
         
-        # Create message with image
-        user_message = UserMessage(
-            content=[
-                {"type": "text", "text": prompt},
-                ImageContent(image_data=data.image_base64, image_format="auto")
-            ]
-        )
+        # Create image content
+        image_content = ImageContent(image_base64=data.image_base64)
         
-        # Get AI response using send_message
-        response = llm_client.send_message(user_message)
+        # Create user message with text and image
+        user_message = UserMessage(text=prompt, file_contents=[image_content])
+        
+        # Get AI response using send_message (it's async)
+        response = await llm_client.send_message(user_message)
         
         # Parse the response
         import json
