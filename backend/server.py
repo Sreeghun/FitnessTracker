@@ -574,16 +574,74 @@ async def startup_db_client():
     food_count = await db.food_database.count_documents({})
     if food_count == 0:
         common_foods = [
+            # Proteins
             {"name": "Chicken Breast", "proteins_per_100g": 31, "carbs_per_100g": 0, "fats_per_100g": 3.6, "vitamins": "B6, B12", "kcal_per_100g": 165},
-            {"name": "Brown Rice", "proteins_per_100g": 2.6, "carbs_per_100g": 23, "fats_per_100g": 0.9, "vitamins": "B1, B3", "kcal_per_100g": 111},
-            {"name": "Broccoli", "proteins_per_100g": 2.8, "carbs_per_100g": 7, "fats_per_100g": 0.4, "vitamins": "C, K", "kcal_per_100g": 34},
-            {"name": "Banana", "proteins_per_100g": 1.1, "carbs_per_100g": 23, "fats_per_100g": 0.3, "vitamins": "B6, C", "kcal_per_100g": 89},
-            {"name": "Salmon", "proteins_per_100g": 20, "carbs_per_100g": 0, "fats_per_100g": 13, "vitamins": "D, B12", "kcal_per_100g": 208},
+            {"name": "Salmon", "proteins_per_100g": 20, "carbs_per_100g": 0, "fats_per_100g": 13, "vitamins": "D, B12, Omega-3", "kcal_per_100g": 208},
             {"name": "Eggs", "proteins_per_100g": 13, "carbs_per_100g": 1.1, "fats_per_100g": 11, "vitamins": "A, D, B12", "kcal_per_100g": 155},
-            {"name": "Oats", "proteins_per_100g": 17, "carbs_per_100g": 66, "fats_per_100g": 7, "vitamins": "B1, B5", "kcal_per_100g": 389},
-            {"name": "Milk", "proteins_per_100g": 3.4, "carbs_per_100g": 5, "fats_per_100g": 1, "vitamins": "D, B12", "kcal_per_100g": 42},
-            {"name": "Apple", "proteins_per_100g": 0.3, "carbs_per_100g": 14, "fats_per_100g": 0.2, "vitamins": "C", "kcal_per_100g": 52},
-            {"name": "Sweet Potato", "proteins_per_100g": 1.6, "carbs_per_100g": 20, "fats_per_100g": 0.1, "vitamins": "A, C", "kcal_per_100g": 86},
+            {"name": "Greek Yogurt", "proteins_per_100g": 10, "carbs_per_100g": 3.6, "fats_per_100g": 0.4, "vitamins": "B12, Calcium", "kcal_per_100g": 59},
+            {"name": "Tuna", "proteins_per_100g": 30, "carbs_per_100g": 0, "fats_per_100g": 1, "vitamins": "B12, D", "kcal_per_100g": 132},
+            {"name": "Beef Steak", "proteins_per_100g": 26, "carbs_per_100g": 0, "fats_per_100g": 15, "vitamins": "B12, Iron, Zinc", "kcal_per_100g": 250},
+            {"name": "Tofu", "proteins_per_100g": 8, "carbs_per_100g": 1.9, "fats_per_100g": 4.8, "vitamins": "Iron, Calcium", "kcal_per_100g": 76},
+            {"name": "Cottage Cheese", "proteins_per_100g": 11, "carbs_per_100g": 3.4, "fats_per_100g": 4.3, "vitamins": "B12, Calcium", "kcal_per_100g": 98},
+            {"name": "Turkey Breast", "proteins_per_100g": 29, "carbs_per_100g": 0, "fats_per_100g": 1, "vitamins": "B6, B12", "kcal_per_100g": 135},
+            {"name": "Shrimp", "proteins_per_100g": 24, "carbs_per_100g": 0.2, "fats_per_100g": 0.3, "vitamins": "B12, Selenium", "kcal_per_100g": 99},
+            
+            # Carbohydrates
+            {"name": "Brown Rice", "proteins_per_100g": 2.6, "carbs_per_100g": 23, "fats_per_100g": 0.9, "vitamins": "B1, B3, Magnesium", "kcal_per_100g": 111},
+            {"name": "White Rice", "proteins_per_100g": 2.7, "carbs_per_100g": 28, "fats_per_100g": 0.3, "vitamins": "B1, Folate", "kcal_per_100g": 130},
+            {"name": "Oats", "proteins_per_100g": 17, "carbs_per_100g": 66, "fats_per_100g": 7, "vitamins": "B1, B5, Iron", "kcal_per_100g": 389},
+            {"name": "Quinoa", "proteins_per_100g": 4.4, "carbs_per_100g": 21, "fats_per_100g": 1.9, "vitamins": "B1, B2, Iron", "kcal_per_100g": 120},
+            {"name": "Whole Wheat Bread", "proteins_per_100g": 13, "carbs_per_100g": 41, "fats_per_100g": 3.4, "vitamins": "B1, B3, Fiber", "kcal_per_100g": 247},
+            {"name": "Sweet Potato", "proteins_per_100g": 1.6, "carbs_per_100g": 20, "fats_per_100g": 0.1, "vitamins": "A, C, B6", "kcal_per_100g": 86},
+            {"name": "Pasta", "proteins_per_100g": 5, "carbs_per_100g": 25, "fats_per_100g": 0.9, "vitamins": "B1, Folate", "kcal_per_100g": 131},
+            {"name": "Potato", "proteins_per_100g": 2, "carbs_per_100g": 17, "fats_per_100g": 0.1, "vitamins": "C, B6, Potassium", "kcal_per_100g": 77},
+            
+            # Fruits
+            {"name": "Banana", "proteins_per_100g": 1.1, "carbs_per_100g": 23, "fats_per_100g": 0.3, "vitamins": "B6, C, Potassium", "kcal_per_100g": 89},
+            {"name": "Apple", "proteins_per_100g": 0.3, "carbs_per_100g": 14, "fats_per_100g": 0.2, "vitamins": "C, Fiber", "kcal_per_100g": 52},
+            {"name": "Orange", "proteins_per_100g": 0.9, "carbs_per_100g": 12, "fats_per_100g": 0.1, "vitamins": "C, Folate", "kcal_per_100g": 47},
+            {"name": "Strawberries", "proteins_per_100g": 0.7, "carbs_per_100g": 7.7, "fats_per_100g": 0.3, "vitamins": "C, Manganese", "kcal_per_100g": 32},
+            {"name": "Blueberries", "proteins_per_100g": 0.7, "carbs_per_100g": 14, "fats_per_100g": 0.3, "vitamins": "C, K, Antioxidants", "kcal_per_100g": 57},
+            {"name": "Mango", "proteins_per_100g": 0.8, "carbs_per_100g": 15, "fats_per_100g": 0.4, "vitamins": "A, C", "kcal_per_100g": 60},
+            {"name": "Grapes", "proteins_per_100g": 0.7, "carbs_per_100g": 18, "fats_per_100g": 0.2, "vitamins": "C, K", "kcal_per_100g": 69},
+            {"name": "Watermelon", "proteins_per_100g": 0.6, "carbs_per_100g": 7.6, "fats_per_100g": 0.2, "vitamins": "A, C", "kcal_per_100g": 30},
+            {"name": "Avocado", "proteins_per_100g": 2, "carbs_per_100g": 9, "fats_per_100g": 15, "vitamins": "K, E, C, B5", "kcal_per_100g": 160},
+            
+            # Vegetables
+            {"name": "Broccoli", "proteins_per_100g": 2.8, "carbs_per_100g": 7, "fats_per_100g": 0.4, "vitamins": "C, K, Folate", "kcal_per_100g": 34},
+            {"name": "Spinach", "proteins_per_100g": 2.9, "carbs_per_100g": 3.6, "fats_per_100g": 0.4, "vitamins": "A, C, K, Iron", "kcal_per_100g": 23},
+            {"name": "Carrots", "proteins_per_100g": 0.9, "carbs_per_100g": 10, "fats_per_100g": 0.2, "vitamins": "A, K, B6", "kcal_per_100g": 41},
+            {"name": "Tomato", "proteins_per_100g": 0.9, "carbs_per_100g": 3.9, "fats_per_100g": 0.2, "vitamins": "C, K, Lycopene", "kcal_per_100g": 18},
+            {"name": "Cucumber", "proteins_per_100g": 0.7, "carbs_per_100g": 3.6, "fats_per_100g": 0.1, "vitamins": "K, C", "kcal_per_100g": 16},
+            {"name": "Bell Pepper", "proteins_per_100g": 1, "carbs_per_100g": 6, "fats_per_100g": 0.3, "vitamins": "A, C", "kcal_per_100g": 31},
+            {"name": "Cauliflower", "proteins_per_100g": 1.9, "carbs_per_100g": 5, "fats_per_100g": 0.3, "vitamins": "C, K, B6", "kcal_per_100g": 25},
+            {"name": "Lettuce", "proteins_per_100g": 1.4, "carbs_per_100g": 2.9, "fats_per_100g": 0.2, "vitamins": "A, K", "kcal_per_100g": 15},
+            {"name": "Mushrooms", "proteins_per_100g": 3.1, "carbs_per_100g": 3.3, "fats_per_100g": 0.3, "vitamins": "D, B2, Selenium", "kcal_per_100g": 22},
+            
+            # Dairy & Alternatives
+            {"name": "Milk (Whole)", "proteins_per_100g": 3.4, "carbs_per_100g": 5, "fats_per_100g": 3.3, "vitamins": "D, B12, Calcium", "kcal_per_100g": 61},
+            {"name": "Milk (Skim)", "proteins_per_100g": 3.4, "carbs_per_100g": 5, "fats_per_100g": 0.1, "vitamins": "D, B12, Calcium", "kcal_per_100g": 34},
+            {"name": "Almond Milk", "proteins_per_100g": 0.4, "carbs_per_100g": 0.3, "fats_per_100g": 1.1, "vitamins": "E, Calcium", "kcal_per_100g": 15},
+            {"name": "Cheddar Cheese", "proteins_per_100g": 25, "carbs_per_100g": 1.3, "fats_per_100g": 33, "vitamins": "A, B12, Calcium", "kcal_per_100g": 403},
+            {"name": "Mozzarella Cheese", "proteins_per_100g": 22, "carbs_per_100g": 2.2, "fats_per_100g": 22, "vitamins": "B12, Calcium", "kcal_per_100g": 280},
+            
+            # Nuts & Seeds
+            {"name": "Almonds", "proteins_per_100g": 21, "carbs_per_100g": 22, "fats_per_100g": 49, "vitamins": "E, Magnesium", "kcal_per_100g": 579},
+            {"name": "Walnuts", "proteins_per_100g": 15, "carbs_per_100g": 14, "fats_per_100g": 65, "vitamins": "Omega-3, B6", "kcal_per_100g": 654},
+            {"name": "Peanut Butter", "proteins_per_100g": 25, "carbs_per_100g": 20, "fats_per_100g": 50, "vitamins": "E, B3, Magnesium", "kcal_per_100g": 588},
+            {"name": "Chia Seeds", "proteins_per_100g": 17, "carbs_per_100g": 42, "fats_per_100g": 31, "vitamins": "Omega-3, Fiber", "kcal_per_100g": 486},
+            {"name": "Cashews", "proteins_per_100g": 18, "carbs_per_100g": 30, "fats_per_100g": 44, "vitamins": "K, Magnesium", "kcal_per_100g": 553},
+            
+            # Legumes
+            {"name": "Black Beans", "proteins_per_100g": 8.9, "carbs_per_100g": 24, "fats_per_100g": 0.5, "vitamins": "Folate, Iron", "kcal_per_100g": 132},
+            {"name": "Chickpeas", "proteins_per_100g": 9, "carbs_per_100g": 27, "fats_per_100g": 2.6, "vitamins": "B6, Folate, Iron", "kcal_per_100g": 164},
+            {"name": "Lentils", "proteins_per_100g": 9, "carbs_per_100g": 20, "fats_per_100g": 0.4, "vitamins": "Folate, Iron", "kcal_per_100g": 116},
+            {"name": "Kidney Beans", "proteins_per_100g": 8.7, "carbs_per_100g": 23, "fats_per_100g": 0.5, "vitamins": "Folate, Iron", "kcal_per_100g": 127},
+            
+            # Others
+            {"name": "Honey", "proteins_per_100g": 0.3, "carbs_per_100g": 82, "fats_per_100g": 0, "vitamins": "B6, C, Calcium", "kcal_per_100g": 304},
+            {"name": "Olive Oil", "proteins_per_100g": 0, "carbs_per_100g": 0, "fats_per_100g": 100, "vitamins": "E, K", "kcal_per_100g": 884},
+            {"name": "Dark Chocolate", "proteins_per_100g": 8, "carbs_per_100g": 46, "fats_per_100g": 43, "vitamins": "Iron, Magnesium", "kcal_per_100g": 599},
         ]
         await db.food_database.insert_many(common_foods)
-        logger.info("Food database seeded with common foods")
+        logger.info(f"Food database seeded with {len(common_foods)} common foods")
