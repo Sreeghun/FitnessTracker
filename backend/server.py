@@ -118,6 +118,19 @@ class MoodLogCreate(BaseModel):
     mood: str  # "sad", "neutral", "happy", "excited"
     notes: Optional[str] = ""
 
+class FoodImageAnalysis(BaseModel):
+    image_base64: str  # Base64 encoded image
+
+class ActivityLogCreate(BaseModel):
+    date: str
+    activity_type: str  # "walking", "running", "cycling", "gym", "other"
+    duration_minutes: int
+    distance_km: Optional[float] = 0
+    calories_burned: Optional[int] = 0
+    steps: Optional[int] = 0
+    heart_rate_avg: Optional[int] = 0
+    notes: Optional[str] = ""
+
 # ==================== Helper Functions ====================
 
 def calculate_bmi(weight: float, height: float) -> float:
