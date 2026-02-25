@@ -1,0 +1,66 @@
+{
+  "expo": {
+    "name": "frontend",
+    "slug": "frontend",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "frontend",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We need your location to track your outdoor activities like walking and running.",
+        "NSMotionUsageDescription": "We need access to your motion data to count steps and track activities.",
+        "NSHealthShareUsageDescription": "We need access to your health data to track your fitness activities.",
+        "NSHealthUpdateUsageDescription": "We need permission to save your activity data to Health app.",
+        "NSBluetoothAlwaysUsageDescription": "We need Bluetooth to connect to your smartwatch and sync health data.",
+        "NSBluetoothPeripheralUsageDescription": "We need Bluetooth to sync data from your smartwatch."
+      }
+    },
+
+    "android": {
+      "usesCleartextTraffic": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#000"
+      },
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACTIVITY_RECOGNITION",
+        "BODY_SENSORS",
+        "BLUETOOTH",
+        "BLUETOOTH_ADMIN",
+        "BLUETOOTH_SCAN",
+        "BLUETOOTH_CONNECT"
+      ]
+    },
+
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#000"
+        }
+      ]
+    ],
+
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

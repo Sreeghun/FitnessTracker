@@ -1,0 +1,5 @@
+MONGO_URL=mongodb://localhost:27017
+DB_NAME=fitness_tracker
+CORS_ORIGINS=*
+SECRET_KEY=your-secret-key
+GEMINI_API_KEY= AIzaSyDeeXAg8HEwJWaa2sPS_CBeGbIUM3ce4e4
